@@ -1,0 +1,2 @@
+{:deps {nrepl/bencode {:mvn/version "1.0.0"}
+        me.raynes/conch {:mvn/version "0.8.0"}}}
