@@ -43,7 +43,7 @@
     (if-not (= code-str
                "(clojure.core/apply clojure.core/require clojure.main/repl-requires)")
       (do (sh/feed-from-string nix-repl (str code-str "\n"))
-          (Thread/sleep 1000)
+          (Thread/sleep 100)
           (let [r (-> (read-available!)
                       (str/replace "[33m" "")
                       (str/replace "[0m" ""))
