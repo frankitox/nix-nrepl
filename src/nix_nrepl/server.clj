@@ -10,6 +10,18 @@
 
 (def debug? true)
 
+(defonce nix-repl (sh/proc "nix" "repl"))
+
+(defn read-available! []
+  (let [out (:out nix-repl)
+        bb (byte-array (.available out))]
+    (.read out bb)
+    (reduce str (map char bb))))
+
+;; strip nix repl initialization message
+(Thread/sleep 100)
+(println "[NIX REPL]" (read-available!))
+
 (defn response-for [old-msg msg]
   (assoc msg
          "session" (get old-msg :session "none")
@@ -26,15 +38,16 @@
                               "status" #{"done"}})))
 
 (defn eval-msg [o msg ns]
-  (let [code-str (get msg :code)
-        code (if (= :nil code-str)
-               nil
-               ;; TODO: sci parse, etc.
-               (read-string code-str))
-        ;; TODO: sci eval
-        value (eval code)]
-    (send o (response-for msg {"ns" (ns-name *ns*)
-                               "value" (pr-str 2)}))
+  (let [code-str (get msg :code)]
+    (if-not (= code-str
+               "(clojure.core/apply clojure.core/require clojure.main/repl-requires)")
+      (do (sh/feed-from-string nix-repl (str code-str "\n"))
+          (Thread/sleep 1000)
+          (let [r (read-available!)]
+            (println "[NIX REPL]" r)
+            (send o (response-for msg {"ns" (ns-name *ns*)
+                                       "value" r}))))
+      (send o (response-for msg {"ns" (ns-name *ns*) "value" "nil"})))
     (send o (response-for msg {"status" #{"done"}}))))
 
 (defn register-session [i o ns msg session-loop]
