@@ -3,6 +3,7 @@
   (:require
    [bencode.core :refer [write-bencode read-bencode]]
    [me.raynes.conch.low-level :as sh]
+   [clojure.string :as str]
    [clojure.stacktrace :as stacktrace])
   (:import
    [java.net ServerSocket]
@@ -43,7 +44,10 @@
                "(clojure.core/apply clojure.core/require clojure.main/repl-requires)")
       (do (sh/feed-from-string nix-repl (str code-str "\n"))
           (Thread/sleep 1000)
-          (let [r (read-available!)]
+          (let [r (-> (read-available!)
+                      (str/replace "[33m" "")
+                      (str/replace "[0m" ""))
+                r (subs r 0 (max 0 (dec (count r))))]
             (println "[NIX REPL]" r)
             (send o (response-for msg {"ns" (ns-name *ns*)
                                        "value" r}))))
