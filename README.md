@@ -4,7 +4,7 @@ A little helper to use nREPL with `nix repl`. To use it you need
 `nix` on the path and then run this:
 
 ```
-clojure -Sdeps '{:deps {deps-try {:git/url "https://github.com/frankitox/nix-nrepl" :sha "be61c319604cdf37b7a5f134717569fc8bae1c40"}}}' -m nix-nrepl.server
+clojure -Sdeps '{:deps {deps-try {:git/url "https://github.com/frankitox/nix-nrepl" :sha "648935036b4dfbcb8a42a3e9f34e8691cf077719"}}}' -m nix-nrepl.server
 ```
 
 You'll see a message like
